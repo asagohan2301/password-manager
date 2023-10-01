@@ -43,9 +43,9 @@ do
 	elif [ "$selected_command" = "Get Password" ]; then
 
 		# ファイルを復号化
-		read -s -p "前回暗号化したときと同じパスフレーズを入力してください: " passphrase_p
+		read -s -p "前回暗号化したときと同じパスフレーズを入力してください: " passphrase
 		echo
-		echo "$passphrase_p" | gpg --batch --passphrase-fd 0 -d --yes --output "$plaintext_file" "$encrypt_file"
+		echo "$passphrase" | gpg --batch --passphrase-fd 0 -d --yes --output "$plaintext_file" "$encrypt_file"
 		
 		# 復号化したファイルから情報を検索
 		read -p "サービス名を入力してください：" input_service_name
@@ -53,10 +53,8 @@ do
 		IFS=":"
 		read -r service_name user_name password <<< "$(grep "^$input_service_name" "$plaintext_file")"
 		
-		# 情報を取得したらファイルを暗号化
-		read -s -p "暗号化するためのパスフレーズを入力してください: " passphrase_e
-		echo
-		echo "$passphrase_e" | gpg --batch --passphrase-fd 0 -c --yes --output "$encrypt_file" "$plaintext_file"
+		# 情報を取得したら、同じパスフレーズでファイルを暗号化
+		echo "$passphrase" | gpg --batch --passphrase-fd 0 -c --yes --output "$encrypt_file" "$plaintext_file"
 
 		# 暗号化する前のファイルを削除
 		rm "$plaintext_file"
