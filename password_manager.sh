@@ -17,21 +17,25 @@ do
 		read -s -p "パスワードを入力してください：" password
 		echo
 		echo
+
+		passphrase="passphrase"
 		
-		# ファイルを復号化
+		# 暗号化されたファイルがすでにあれば復号化
 		if [ -e "$encrypt_file" ]; then
-			read -s -p "前回暗号化したときと同じパスフレーズを入力してください: " passphrase_p
+			read -s -p "登録したパスフレーズを入力してください：" passphrase
 			echo
-			echo "$passphrase_p" | gpg --batch --passphrase-fd 0 -d --yes --output "$plaintext_file" "$encrypt_file"
+			echo "$passphrase" | gpg --batch --passphrase-fd 0 -d --yes --output "$plaintext_file" "$encrypt_file"
+		# 初めてファイルを作成するとき
+		else
+			echo "パスフレーズを登録してください。"
+			read -s -p "今後情報を登録したり閲覧するときは、ここで登録したパスフレーズを入力してください：" passphrase
 		fi
 		
 		# 復号化したファイルに情報を追記
 		echo "${service_name}:${user_name}:${password}" >> "$plaintext_file"
 		
 		# 情報を追記したら暗号化
-		read -s -p "暗号化するためのパスフレーズを入力してください: " passphrase_e
-		echo
-		echo "$passphrase_e" | gpg --batch --passphrase-fd 0 -c --yes --output "$encrypt_file" "$plaintext_file"
+		echo "$passphrase" | gpg --batch --passphrase-fd 0 -c --yes --output "$encrypt_file" "$plaintext_file"
 
 		# 暗号化する前のファイルを削除
 		rm "$plaintext_file"
@@ -43,7 +47,7 @@ do
 	elif [ "$selected_command" = "Get Password" ]; then
 
 		# ファイルを復号化
-		read -s -p "前回暗号化したときと同じパスフレーズを入力してください: " passphrase
+		read -s -p "登録したパスフレーズを入力してください：" passphrase
 		echo
 		echo "$passphrase" | gpg --batch --passphrase-fd 0 -d --yes --output "$plaintext_file" "$encrypt_file"
 		
