@@ -58,6 +58,13 @@ do
 
 	elif [ "$selected_command" = "Get Password" ]; then
 
+		# ファイルがまだ存在しない場合は後の処理に進まない
+		if [ ! -e "$encrypt_file" ]; then
+			echo "まだパスワードを追加していません。"
+			echo
+			continue
+		fi
+
 		# ファイルを復号化
 		read -s -p "登録したパスフレーズを入力してください：" passphrase
 		echo
